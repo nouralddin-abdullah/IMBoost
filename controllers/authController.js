@@ -3,7 +3,6 @@ const catchAsync = require("./../utils/catchAsync");
 const jwt = require("jsonwebtoken");
 const AppError = require("./../utils/appError");
 const { promisify } = require("util");
-const sendEmail = require("./../utils/email");
 const crypto = require("crypto");
 const signToken = (id, role) => {
   return jwt.sign({ id, role }, process.env.JWT_SECRET, {
@@ -36,39 +35,19 @@ const createSendToken = (user, statusCode, res) => {
 
 exports.signup = catchAsync(async (req, res) => {
   console.log("Signup body:", req.body);
-  const rank = await User.countDocuments({
-    role: { $in: ["student", "group-leader"] },
-  });
 
   const newUser = await User.create({
     username: req.body.username,
-    fullName: req.body.fullName,
-    group: req.body.group,
     email: req.body.email,
-    photo: req.file ? `user-${req.body.username}.jpeg` : "default.jpg",
     password: req.body.password,
     passwordConfirm: req.body.passwordConfirm,
-    rank: rank + 1,
-    deviceTokens: req.body.deviceToken ? [req.body.deviceToken] : [],
   });
-
-  const courses = await Course.find();
-  await Promise.all(
-    courses.map(async (course) => {
-      course.studentsId.push(newUser._id);
-      await course.save({ validateBeforeSave: false });
-    })
-  );
 
   createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { identifier, password, deviceToken } = req.body;
-
-  if (deviceToken && typeof deviceToken !== "string") {
-    return next(new AppError("Invalid device token format", 400));
-  }
+  const { identifier, password } = req.body;
 
   if (!identifier || !password) {
     return next(
@@ -86,17 +65,6 @@ exports.login = catchAsync(async (req, res, next) => {
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError("Incorrect email/username or password", 401));
-  }
-
-  if (deviceToken) {
-    if (!user.deviceTokens.includes(deviceToken)) {
-      const MAX_TOKENS = 5;
-      if (user.deviceTokens.length >= MAX_TOKENS) {
-        user.deviceTokens.shift();
-      }
-      user.deviceTokens.push(deviceToken);
-      await user.save({ validateBeforeSave: false });
-    }
   }
 
   createSendToken(user, 200, res);
@@ -167,27 +135,11 @@ exports.forgotPassword = catchAsync(async (req, res, next) => {
   // 3) Send it to user's email
   const resetURL = `bishell.online/reset-password/${resetToken}`;
   const html = generatePasswordResetEmail(resetURL);
-  try {
-    await sendEmail({
-      email: user.email,
-      subject: "Your password reset token (valid for 10 min)",
-      html,
-    });
 
-    res.status(200).json({
-      status: "success",
-      message: "Token sent to email!",
-    });
-  } catch (err) {
-    // user.passwordResetToken = undefined;
-    // user.passwordResetExpires = undefined;
-    await user.save({ validateBeforeSave: false });
-
-    return next(
-      new AppError("There was an error sending the email. Try again later!"),
-      500
-    );
-  }
+  res.status(200).json({
+    status: "success",
+    message: "Token sent to email!",
+  });
 });
 
 exports.resetPassword = catchAsync(async (req, res, next) => {
@@ -233,19 +185,6 @@ exports.updatePassword = catchAsync(async (req, res, next) => {
 });
 
 exports.logout = catchAsync(async (req, res, next) => {
-  const { deviceToken } = req.body;
-
-  if (!deviceToken) {
-    return next(new AppError("Device token is required", 400));
-  }
-
-  if (req.user) {
-    // Remove the specific device token
-    await User.findByIdAndUpdate(req.user._id, {
-      $pull: { deviceTokens: deviceToken },
-    });
-  }
-
   res.status(200).json({
     status: "success",
     message: "Successfully logged out",
