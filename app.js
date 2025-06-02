@@ -11,9 +11,9 @@ const hpp = require("hpp");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
-const accountRouter = require("./routes/accountRouter")
+const accountRouter = require("./routes/accountRouter");
+const userRouter = require("./routes/userRouter");
 app.enable("trust proxy");
-
 
 // 2) CORS configuration
 app.use(
@@ -64,17 +64,17 @@ app.use((req, res, next) => {
 });
 
 // 10) Test route
-app.get('/', (req, res) => {
-  res.json({ 
-    status: 'success',
-    message: 'IMVU Booster API is running!',
-    timestamp: new Date().toISOString()
+app.get("/", (req, res) => {
+  res.json({
+    status: "success",
+    message: "IMVU Booster API is running!",
+    timestamp: new Date().toISOString(),
   });
 });
 
 // 11) API Routes
-app.use('/api/account', accountRouter);
-
+app.use("/api/account", accountRouter);
+app.use("/api/user", userRouter);
 // 12) Catch-all route - Express 5 compatible
 app.all(/.*/, (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
