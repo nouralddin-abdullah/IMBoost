@@ -1,0 +1,35 @@
+{
+  "name": "imboost",
+  "version": "1.0.0",
+  "description": "IMVU Booster",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nouralddin-abdullah/IMBoost.git"
+  },
+  "keywords": [
+    "IMVU"
+  ],
+  "author": "Toasty & nightstalker",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nouralddin-abdullah/IMBoost/issues"
+  },
+  "homepage": "https://github.com/nouralddin-abdullah/IMBoost#readme",
+  "dependencies": {
+    "axios": "^1.9.0",
+    "cookie-parser": "^1.4.7",
+    "cors": "^2.8.5",
+    "dotenv": "^16.5.0",
+    "express": "^5.1.0",
+    "express-mongo-sanitize": "^2.2.0",
+    "express-rate-limit": "^7.5.0",
+    "hpp": "^0.2.3",
+    "mongoose": "^8.15.1",
+    "morgan": "^1.10.0",
+    "multer": "^2.0.0"
+  }
+}
