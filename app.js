@@ -13,6 +13,8 @@ const cookieParser = require("cookie-parser");
 const multer = require("multer");
 const accountRouter = require("./routes/accountRouter");
 const userRouter = require("./routes/userRouter");
+const autoLikeRoutes = require('./routes/autoLike.routes');
+const autoCommentRoutes = require('./routes/autoComment.routes');
 app.enable("trust proxy");
 
 // 2) CORS configuration
@@ -75,6 +77,9 @@ app.get("/", (req, res) => {
 // 11) API Routes
 app.use("/api/account", accountRouter);
 app.use("/api/user", userRouter);
+app.use('/api/auto-like', autoLikeRoutes);
+app.use('/api/auto-comment', autoCommentRoutes);
+
 // 12) Catch-all route - Express 5 compatible
 app.all(/.*/, (req, res, next) => {
   next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));
