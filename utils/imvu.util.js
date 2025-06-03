@@ -45,7 +45,71 @@ async function sendComment(postId, osCsid, xImvuSauce) {
   return { response: response.data, comment };
 }
 
+/**
+ * Gets a random base64 image from the output_base64.txt file
+ */
+function getRandomImageBase64() {
+  const filePath = path.join(__dirname, '../output_base64.txt');
+  const images = fs.readFileSync(filePath, 'utf-8').split('\n').filter(Boolean);
+  const randomIndex = Math.floor(Math.random() * images.length);
+  return images[randomIndex];
+}
+
+/**
+ * Uploads an image to IMVU and returns the photo URL
+ * @param {string} imageBase64 The base64 encoded image
+ * @param {string} osCsid The osCsid cookie value
+ * @param {string} xImvuSauce The x-imvu-sauce header
+ */
+async function uploadImage(imageBase64, osCsid, xImvuSauce) {
+  const url = 'https://api.imvu.com/photo';
+
+  const headers = {
+    'x-imvu-sauce': xImvuSauce,
+    'Cookie': `osCsid=${osCsid}`,
+    'Content-Type': 'application/json',
+  };
+
+  const body = { image_base64: imageBase64 };
+
+  console.log(`Upload URL: ${url}`);
+  console.log(`Upload headers:`, headers);
+  console.log(`Upload body length: ${JSON.stringify(body).length}`);
+
+  const response = await axios.post(url, body, { headers });
+  return response.data;
+}
+
+/**
+ * Updates the profile image for a user
+ * @param {string} cid The customer ID
+ * @param {string} photoUrl The photo URL from upload response
+ * @param {string} osCsid The osCsid cookie value
+ * @param {string} xImvuSauce The x-imvu-sauce header
+ */
+async function updateProfileImage(cid, photoUrl, osCsid, xImvuSauce) {
+  const url = `https://api.imvu.com/user/user-${cid}`;
+
+  const headers = {
+    'x-imvu-sauce': xImvuSauce,
+    'Cookie': `osCsid=${osCsid}`,
+    'Content-Type': 'application/json',
+  };
+
+  const body = { thumbnail_url: photoUrl };
+
+  console.log(`Profile update URL: ${url}`);
+  console.log(`Profile update headers:`, headers);
+  console.log(`Profile update body:`, body);
+
+  const response = await axios.post(url, body, { headers });
+  return response.data;
+}
+
 module.exports = {
   sendLike,
-  sendComment
+  sendComment,
+  getRandomImageBase64,
+  uploadImage,
+  updateProfileImage
 };

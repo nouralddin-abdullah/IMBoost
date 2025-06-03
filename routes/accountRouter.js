@@ -7,4 +7,6 @@ router.put('/:id', accountController.updateAccount);
 router.delete('/:id', accountController.deleteAccount);
 router.post('/refresh/:id', accountController.refreshLogin); 
 router.post('/refresh-all', accountController.refreshAllAccounts);
+router.post('/change-images', accountController.changeAccountImages);
+
 module.exports = router;

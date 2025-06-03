@@ -15,6 +15,7 @@ const accountRouter = require("./routes/accountRouter");
 const userRouter = require("./routes/userRouter");
 const autoLikeRoutes = require('./routes/autoLike.routes');
 const autoCommentRoutes = require('./routes/autoComment.routes');
+const autoFollowRoutes = require('./routes/autoFollow.routes')
 app.enable("trust proxy");
 
 // 2) CORS configuration
@@ -79,6 +80,7 @@ app.use("/api/account", accountRouter);
 app.use("/api/user", userRouter);
 app.use('/api/auto-like', autoLikeRoutes);
 app.use('/api/auto-comment', autoCommentRoutes);
+app.use('/api/auto-follow', autoFollowRoutes);
 
 // 12) Catch-all route - Express 5 compatible
 app.all(/.*/, (req, res, next) => {
