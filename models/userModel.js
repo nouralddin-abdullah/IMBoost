@@ -4,17 +4,17 @@ const validator = require("validator");
 const bcrypt = require("bcrypt");
 const userSchema = new mongoose.Schema(
   {
-    username: {
+    firstName: {
       type: String,
-      required: [true, "A user must have a username"],
-      unique: true,
-      validate: {
-        validator: function (v) {
-          return /^[a-zA-Z0-9-]+$/.test(v);
-        },
-        message:
-          "Username can only contain letters, numbers, and hyphens (-), no spaces.",
-      },
+      required: true,
+    },
+    lastName: {
+      type: String,
+      required: true,
+    },
+    Plan: {
+      type: String,
+      default: "basic",
     },
     email: {
       type: String,

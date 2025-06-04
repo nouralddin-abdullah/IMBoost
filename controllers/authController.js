@@ -13,9 +13,6 @@ const signToken = (id, role) => {
 const createSendToken = (user, statusCode, res) => {
   const token = signToken(user._id, user.role);
   const cookiesOptions = {
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-    ),
     secure: false,
     httpOnly: true,
   };
@@ -34,34 +31,30 @@ const createSendToken = (user, statusCode, res) => {
 };
 
 exports.signup = catchAsync(async (req, res) => {
+  const { firstName, lastName, email, password, passwordConfirm } = req.body;
   console.log("Signup body:", req.body);
 
   const newUser = await User.create({
-    username: req.body.username,
-    email: req.body.email,
-    password: req.body.password,
-    passwordConfirm: req.body.passwordConfirm,
+    firstName,
+    lastName,
+    email,
+    password,
+    passwordConfirm,
   });
 
   createSendToken(newUser, 201, res);
 });
 
 exports.login = catchAsync(async (req, res, next) => {
-  const { identifier, password } = req.body;
+  const { email, password } = req.body;
 
-  if (!identifier || !password) {
+  if (!email || !password) {
     return next(
       new AppError("Please provide email or username and password", 400)
     );
   }
 
-  //case-insensitive regex patterns for both email and username
-  const emailPattern = new RegExp(`^${identifier}$`, "i");
-  const usernamePattern = new RegExp(`^${identifier}$`, "i");
-
-  const user = await User.findOne({
-    $or: [{ email: emailPattern }, { username: usernamePattern }],
-  }).select("+password");
+  const user = await User.findOne({ email }).select("+password");
 
   if (!user || !(await user.correctPassword(password, user.password))) {
     return next(new AppError("Incorrect email/username or password", 401));
