@@ -1,0 +1,38 @@
+const Account = require('../models/accountModel');
+const { joinRoom } = require('../utils/imvu.util');
+
+async function autoJoinRoom(roomId, numberOfAccounts) {
+  if (!roomId) throw new Error('Room ID is required');
+  if (!numberOfAccounts || numberOfAccounts <= 0) throw new Error('Number of accounts must be greater than 0');
+
+  // Get accounts that have authentication data
+  const accounts = await Account.find({
+    xImvuSauce: { $exists: true, $ne: null },
+    osCsid: { $exists: true, $ne: null }
+  }).limit(numberOfAccounts);
+
+  if (accounts.length === 0) {
+    throw new Error('No accounts with valid authentication found');
+  }
+
+  const results = [];
+
+  for (const account of accounts) {
+    try {
+      await joinRoom(roomId, account.osCsid, account.xImvuSauce);
+      results.push({ email: account.email, status: 'joined' });
+    } catch (error) {
+      results.push({
+        email: account.email,
+        status: 'failed',
+        reason: error.response?.statusText || error.message,
+      });
+    }
+  }
+
+  return results;
+}
+
+module.exports = {
+  autoJoinRoom,
+};

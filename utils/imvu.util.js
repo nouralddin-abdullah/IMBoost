@@ -106,10 +106,32 @@ async function updateProfileImage(cid, photoUrl, osCsid, xImvuSauce) {
   return response.data;
 }
 
+/**
+ * Joins a chat room using the provided account
+ * @param {string} roomId The room ID (e.g., "chat-133983674-384")
+ * @param {string} osCsid The osCsid cookie value
+ * @param {string} xImvuSauce The x-imvu-sauce header
+ */
+async function joinRoom(roomId, osCsid, xImvuSauce) {
+  const url = `https://api.imvu.com/chat/${roomId}/participants`;
+
+  const headers = {
+    'x-imvu-sauce': xImvuSauce,
+    'Cookie': `osCsid=${osCsid}`,
+    'Content-Type': 'application/json',
+  };
+
+  const body = {};
+
+  const response = await axios.post(url, body, { headers });
+  return response.data;
+}
+
 module.exports = {
   sendLike,
   sendComment,
   getRandomImageBase64,
   uploadImage,
-  updateProfileImage
+  updateProfileImage,
+  joinRoom
 };

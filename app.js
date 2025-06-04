@@ -1,4 +1,4 @@
-const express = require("express");
+const express= require("express");
 const morgan = require("morgan");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
@@ -15,7 +15,8 @@ const accountRouter = require("./routes/accountRouter");
 const userRouter = require("./routes/userRouter");
 const autoLikeRoutes = require('./routes/autoLike.routes');
 const autoCommentRoutes = require('./routes/autoComment.routes');
-const autoFollowRoutes = require('./routes/autoFollow.routes')
+const autoFollowRoutes = require('./routes/autoFollow.routes');
+const autoJoinRoomRoutes = require('./routes/autoJoinRoom.routes');
 app.enable("trust proxy");
 
 // 2) CORS configuration
@@ -81,6 +82,7 @@ app.use("/api/user", userRouter);
 app.use('/api/auto-like', autoLikeRoutes);
 app.use('/api/auto-comment', autoCommentRoutes);
 app.use('/api/auto-follow', autoFollowRoutes);
+app.use('/api/auto-join-room', autoJoinRoomRoutes);
 
 // 12) Catch-all route - Express 5 compatible
 app.all(/.*/, (req, res, next) => {
