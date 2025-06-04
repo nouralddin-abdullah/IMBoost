@@ -1,5 +1,6 @@
 const Account = require('../models/accountModel');
 const { sendComment } = require('../utils/imvu.util');
+const { logActivity } = require('../controllers/statisticController');
 
 async function autoCommentAllAccounts(postId) {
   const accounts = await Account.find();
@@ -17,6 +18,8 @@ async function autoCommentAllAccounts(postId) {
       });
     }
   }
+  
+  await logActivity('comment', user, postId, results);
 
   return results;
 }

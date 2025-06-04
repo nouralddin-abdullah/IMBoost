@@ -1,5 +1,6 @@
 const axios = require('axios');
 const Account = require('../models/accountModel');
+const { logActivity } = require('../controllers/statisticController');
 
 async function autoFollow(usernameToFollow) {
   if (!usernameToFollow) throw new Error('Username to follow is required');
@@ -47,6 +48,8 @@ async function autoFollow(usernameToFollow) {
       results.push({ email: account.email, status: 'failed', reason: error.message });
     }
   }
+
+  await logActivity('follow', user, usernameToFollow, results);
 
   return results;
 }

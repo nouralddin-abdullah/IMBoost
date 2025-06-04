@@ -17,6 +17,7 @@ const autoLikeRoutes = require('./routes/autoLike.routes');
 const autoCommentRoutes = require('./routes/autoComment.routes');
 const autoFollowRoutes = require('./routes/autoFollow.routes');
 const autoJoinRoomRoutes = require('./routes/autoJoinRoom.routes');
+const statisticsRouters = require('./routes/statisticRouter');
 app.enable("trust proxy");
 
 // 2) CORS configuration
@@ -83,6 +84,7 @@ app.use('/api/auto-like', autoLikeRoutes);
 app.use('/api/auto-comment', autoCommentRoutes);
 app.use('/api/auto-follow', autoFollowRoutes);
 app.use('/api/auto-join-room', autoJoinRoomRoutes);
+app.use('/api/statistics', statisticsRouters);
 
 // 12) Catch-all route - Express 5 compatible
 app.all(/.*/, (req, res, next) => {
