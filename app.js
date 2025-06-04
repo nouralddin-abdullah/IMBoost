@@ -1,4 +1,4 @@
-const express= require("express");
+const express = require("express");
 const morgan = require("morgan");
 const AppError = require("./utils/appError");
 const globalErrorHandler = require("./controllers/errorController");
@@ -11,13 +11,14 @@ const hpp = require("hpp");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
+const authController = require("./controllers/authController");
 const accountRouter = require("./routes/accountRouter");
 const userRouter = require("./routes/userRouter");
-const autoLikeRoutes = require('./routes/autoLike.routes');
-const autoCommentRoutes = require('./routes/autoComment.routes');
-const autoFollowRoutes = require('./routes/autoFollow.routes');
-const autoJoinRoomRoutes = require('./routes/autoJoinRoom.routes');
-const statisticsRouters = require('./routes/statisticRouter');
+const autoLikeRoutes = require("./routes/autoLike.routes");
+const autoCommentRoutes = require("./routes/autoComment.routes");
+const autoFollowRoutes = require("./routes/autoFollow.routes");
+const autoJoinRoomRoutes = require("./routes/autoJoinRoom.routes");
+const statisticsRouters = require("./routes/statisticRouter");
 app.enable("trust proxy");
 
 // 2) CORS configuration
@@ -78,13 +79,15 @@ app.get("/", (req, res) => {
 });
 
 // 11) API Routes
-app.use("/api/account", accountRouter);
 app.use("/api/user", userRouter);
-app.use('/api/auto-like', autoLikeRoutes);
-app.use('/api/auto-comment', autoCommentRoutes);
-app.use('/api/auto-follow', autoFollowRoutes);
-app.use('/api/auto-join-room', autoJoinRoomRoutes);
-app.use('/api/statistics', statisticsRouters);
+app.use(authController.protect);
+
+app.use("/api/account", accountRouter);
+app.use("/api/auto-like", autoLikeRoutes);
+app.use("/api/auto-comment", autoCommentRoutes);
+app.use("/api/auto-follow", autoFollowRoutes);
+app.use("/api/auto-join-room", autoJoinRoomRoutes);
+app.use("/api/statistics", statisticsRouters);
 
 // 12) Catch-all route - Express 5 compatible
 app.all(/.*/, (req, res, next) => {
