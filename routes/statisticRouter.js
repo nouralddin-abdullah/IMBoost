@@ -1,6 +1,10 @@
 const express = require('express');
 const router = express.Router();
 const statisticsController = require('../controllers/statisticController');
+const authController = require('../controllers/authController');
+
+// Apply authentication to all routes
+router.use(authController.protect);
 
 // Get global statistics
 router.get('/', statisticsController.getGlobalStatistics);
@@ -12,6 +16,6 @@ router.get('/activities', statisticsController.getRecentActivities);
 router.get('/date-range', statisticsController.getStatisticsByDateRange);
 
 // Reset statistics (admin function)
-router.post('/reset', statisticsController.resetStatistics);
+router.post('/reset', authController.restrictTo('admin'), statisticsController.resetStatistics);
 
 module.exports = router;

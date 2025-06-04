@@ -2,7 +2,7 @@ const Account = require('../models/accountModel');
 const { sendComment } = require('../utils/imvu.util');
 const { logActivity } = require('../controllers/statisticController');
 
-async function autoCommentAllAccounts(postId) {
+async function autoCommentAllAccounts(postId, user = null) {
   const accounts = await Account.find();
   const results = [];
 
@@ -19,7 +19,9 @@ async function autoCommentAllAccounts(postId) {
     }
   }
   
-  await logActivity('comment', user, postId, results);
+  // Log activity with user info (email or 'system' if no user)
+  const userIdentifier = user ? user.email : 'system';
+  await logActivity('comment', userIdentifier, postId, results);
 
   return results;
 }

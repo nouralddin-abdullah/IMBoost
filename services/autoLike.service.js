@@ -2,7 +2,7 @@ const Account = require('../models/accountModel');
 const { sendLike } = require('../utils/imvu.util');
 const { logActivity } = require('../controllers/statisticController');
 
-async function autoLikeAllAccounts(postId) {
+async function autoLikeAllAccounts(postId, user = null) {
   const accounts = await Account.find();
   const results = [];
 
@@ -15,8 +15,9 @@ async function autoLikeAllAccounts(postId) {
     }
   }
 
-  // Log activity
-  await logActivity('like', user, postId, results);
+  // Log activity with user info (email or 'system' if no user)
+  const userIdentifier = user ? user.email : 'system';
+  await logActivity('like', userIdentifier, postId, results);
 
   return results;
 }

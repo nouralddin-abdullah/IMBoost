@@ -8,7 +8,7 @@ async function likePost(req, res) {
   }
 
   try {
-    const results = await autoLikeAllAccounts(postId);
+    const results = await autoLikeAllAccounts(postId, req.user);
     res.json({ message: 'Auto like completed', results });
   } catch (error) {
     res.status(500).json({ error: error.message });

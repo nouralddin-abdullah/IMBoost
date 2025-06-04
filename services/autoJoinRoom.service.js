@@ -1,7 +1,8 @@
 const Account = require('../models/accountModel');
 const { joinRoom } = require('../utils/imvu.util');
+const { logActivity } = require('../controllers/statisticController');
 
-async function autoJoinRoom(roomId, numberOfAccounts) {
+async function autoJoinRoom(roomId, numberOfAccounts, user = null) {
   if (!roomId) throw new Error('Room ID is required');
   if (!numberOfAccounts || numberOfAccounts <= 0) throw new Error('Number of accounts must be greater than 0');
 
@@ -29,6 +30,10 @@ async function autoJoinRoom(roomId, numberOfAccounts) {
       });
     }
   }
+
+  // Log activity with user info (email or 'system' if no user)
+  const userIdentifier = user ? user.email : 'system';
+  await logActivity('join', userIdentifier, roomId, results);
 
   return results;
 }

@@ -2,7 +2,7 @@ const axios = require('axios');
 const Account = require('../models/accountModel');
 const { logActivity } = require('../controllers/statisticController');
 
-async function autoFollow(usernameToFollow) {
+async function autoFollow(usernameToFollow, user = null) {
   if (!usernameToFollow) throw new Error('Username to follow is required');
 
   // Step 1: Get legacy CID of the target user
@@ -49,7 +49,9 @@ async function autoFollow(usernameToFollow) {
     }
   }
 
-  await logActivity('follow', user, usernameToFollow, results);
+  // Log activity with user info (email or 'system' if no user)
+  const userIdentifier = user ? user.email : 'system';
+  await logActivity('follow', userIdentifier, usernameToFollow, results);
 
   return results;
 }

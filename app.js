@@ -80,8 +80,6 @@ app.get("/", (req, res) => {
 
 // 11) API Routes
 app.use("/api/user", userRouter);
-app.use(authController.protect);
-
 app.use("/api/account", accountRouter);
 app.use("/api/auto-like", autoLikeRoutes);
 app.use("/api/auto-comment", autoCommentRoutes);

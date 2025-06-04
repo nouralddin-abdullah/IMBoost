@@ -2,6 +2,9 @@ const express = require("express");
 const router = express.Router();
 const accountController = require("../controllers/accountController");
 const authController = require("../controllers/authController");
+
+// Apply authentication and admin restriction to all routes
+router.use(authController.protect);
 router.use(authController.restrictTo("admin"));
 
 router.post("/", accountController.addAccount);

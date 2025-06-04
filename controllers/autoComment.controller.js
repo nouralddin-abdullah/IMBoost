@@ -8,7 +8,7 @@ async function commentPost(req, res) {
   }
 
   try {
-    const results = await autoCommentAllAccounts(postId);
+    const results = await autoCommentAllAccounts(postId, req.user);
     res.json({ message: 'Auto comment completed', results });
   } catch (error) {
     res.status(500).json({ error: error.message });

@@ -12,7 +12,7 @@ async function joinRoomWithAccounts(req, res) {
   }
 
   try {
-    const results = await autoJoinRoom(roomId, numberOfAccounts);
+    const results = await autoJoinRoom(roomId, numberOfAccounts, req.user);
     res.json({ 
       message: `Auto join room completed for room ${roomId}`, 
       results,
