@@ -11,9 +11,9 @@ const userSchema = new mongoose.Schema(
     lastName: {
       type: String,
       required: true,
-    },
-    Plan: {
+    },    Plan: {
       type: String,
+      enum: ["basic", "premium"],
       default: "basic",
     },
     email: {

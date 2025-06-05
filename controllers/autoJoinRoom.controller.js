@@ -1,4 +1,5 @@
 const { autoJoinRoom } = require('../services/autoJoinRoom.service');
+const { incrementDailyUsage } = require('../middleware/planLimits');
 
 async function joinRoomWithAccounts(req, res) {
   const { roomId, numberOfAccounts } = req.body;
@@ -13,6 +14,12 @@ async function joinRoomWithAccounts(req, res) {
 
   try {
     const results = await autoJoinRoom(roomId, numberOfAccounts, req.user);
+    
+    // Increment daily usage counter
+    if (req.dailyUsage) {
+      await incrementDailyUsage(req.dailyUsage, 'join');
+    }
+    
     res.json({ 
       message: `Auto join room completed for room ${roomId}`, 
       results,

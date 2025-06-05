@@ -2,10 +2,11 @@ const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/autoJoinRoom.controller');
 const authController = require('../controllers/authController');
+const { checkDailyLimit } = require('../middleware/planLimits');
 
-// Apply authentication to all routes
 router.use(authController.protect);
 
-router.post('/', controller.joinRoomWithAccounts);
+// Apply daily limit check for room joins
+router.post('/', checkDailyLimit('join'), controller.joinRoomWithAccounts);
 
 module.exports = router;

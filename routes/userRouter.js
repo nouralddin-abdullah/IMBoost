@@ -15,16 +15,24 @@ router.patch("/updateMe", userController.updateMe);
 
 router.get(
   "/me",
-
   userController.getMe,
   userController.getUser
 );
 
+// Get user's usage and limits
+router.get("/usage", require('../middleware/planLimits').getCurrentUsage);
+
+// Upgrade user plan
+router.post("/upgrade-plan", userController.upgradeToPremium);
+
 router.patch(
   "/updateMyPassword",
-
   authController.updatePassword
 );
 router.post("/logout", authController.logout);
+
+// Admin-only routes
+router.use(authController.restrictTo("admin"));
+router.patch("/update-user-plan", userController.updateUserPlan);
 
 module.exports = router;

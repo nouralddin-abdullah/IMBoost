@@ -82,3 +82,62 @@ exports.isUsernameGood = catchAsync(async (req, res, next) => {
     message: "Email available",
   });
 });
+
+// Upgrade user plan to premium
+exports.upgradeToPremium = catchAsync(async (req, res, next) => {
+  // In a real app, this would include payment processing
+  const user = req.user;
+  
+  // Update user plan to premium
+  user.Plan = 'premium';
+  await user.save({ validateBeforeSave: true });
+  
+  res.status(200).json({
+    status: 'success',
+    message: 'Your plan has been upgraded to Premium successfully',
+    data: {
+      user: {
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        Plan: user.Plan
+      }
+    }
+  });
+});
+
+// Admin function to manage user plans
+exports.updateUserPlan = catchAsync(async (req, res, next) => {
+  const { userId, plan } = req.body;
+  
+  if (!userId || !plan) {
+    return next(new AppError('User ID and plan are required', 400));
+  }
+  
+  if (!['basic', 'premium'].includes(plan)) {
+    return next(new AppError('Invalid plan type. Must be "basic" or "premium"', 400));
+  }
+  
+  const user = await User.findById(userId);
+  
+  if (!user) {
+    return next(new AppError('No user found with that ID', 404));
+  }
+  
+  user.Plan = plan;
+  await user.save({ validateBeforeSave: true });
+  
+  res.status(200).json({
+    status: 'success',
+    message: `User plan updated to ${plan}`,
+    data: {
+      user: {
+        id: user._id,
+        firstName: user.firstName,
+        lastName: user.lastName,
+        email: user.email,
+        Plan: user.Plan
+      }
+    }
+  });
+});

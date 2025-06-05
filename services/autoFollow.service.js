@@ -1,6 +1,7 @@
 const axios = require('axios');
 const Account = require('../models/accountModel');
 const { logActivity } = require('../controllers/statisticController');
+const { PLAN_LIMITS } = require('../middleware/planLimits');
 
 async function autoFollow(usernameToFollow, user = null) {
   if (!usernameToFollow) throw new Error('Username to follow is required');
@@ -18,8 +19,15 @@ async function autoFollow(usernameToFollow, user = null) {
 
   if (!legacyCid) throw new Error('Legacy CID not found');
 
+  // Determine the account limit based on user's plan
+  let accountLimit = Infinity;
+  if (user) {
+    const userPlan = user.Plan || 'basic';
+    accountLimit = PLAN_LIMITS[userPlan].maxAccountsPerOperation;
+  }
+  
   // Step 2: Loop through bot accounts
-  const accounts = await Account.find();
+  const accounts = await Account.find().limit(accountLimit);
   const results = [];
 
   for (const account of accounts) {

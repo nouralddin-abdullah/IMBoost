@@ -1,16 +1,29 @@
 const Account = require('../models/accountModel');
 const { joinRoom } = require('../utils/imvu.util');
 const { logActivity } = require('../controllers/statisticController');
+const { PLAN_LIMITS } = require('../middleware/planLimits');
 
 async function autoJoinRoom(roomId, numberOfAccounts, user = null) {
   if (!roomId) throw new Error('Room ID is required');
   if (!numberOfAccounts || numberOfAccounts <= 0) throw new Error('Number of accounts must be greater than 0');
+  
+  // Apply plan limit if user is provided
+  let accountLimit = numberOfAccounts;
+  if (user) {
+    const userPlan = user.Plan || 'basic';
+    const planLimit = PLAN_LIMITS[userPlan].maxAccountsPerOperation;
+    
+    // Don't allow exceeding plan limits
+    if (planLimit < accountLimit) {
+      accountLimit = planLimit;
+    }
+  }
 
   // Get accounts that have authentication data
   const accounts = await Account.find({
     xImvuSauce: { $exists: true, $ne: null },
     osCsid: { $exists: true, $ne: null }
-  }).limit(numberOfAccounts);
+  }).limit(accountLimit);
 
   if (accounts.length === 0) {
     throw new Error('No accounts with valid authentication found');

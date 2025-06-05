@@ -1,9 +1,18 @@
 const Account = require('../models/accountModel');
 const { sendComment } = require('../utils/imvu.util');
 const { logActivity } = require('../controllers/statisticController');
+const { PLAN_LIMITS } = require('../middleware/planLimits');
 
 async function autoCommentAllAccounts(postId, user = null) {
-  const accounts = await Account.find();
+  // Determine the account limit based on user's plan
+  let accountLimit = Infinity;
+  if (user) {
+    const userPlan = user.Plan || 'basic';
+    accountLimit = PLAN_LIMITS[userPlan].maxAccountsPerOperation;
+  }
+  
+  // Find accounts with limit
+  const accounts = await Account.find().limit(accountLimit);
   const results = [];
 
   for (const account of accounts) {
