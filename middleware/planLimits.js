@@ -35,10 +35,11 @@ const checkDailyLimit = (actionType) => {
     
     // Get today's usage
     const dailyUsage = await DailyUsage.getTodayUsage(user._id);
-    
-    // Check if user can perform this action
+      // Check if user can perform this action
     if (!dailyUsage.canPerformAction(actionType, userPlan)) {
-      const limits = PLAN_LIMITS[userPlan].dailyLimits;
+      // Check if the userPlan exists in PLAN_LIMITS, default to basic if not
+      const planConfig = PLAN_LIMITS[userPlan] || PLAN_LIMITS['basic'];
+      const limits = planConfig.dailyLimits;
       return next(new AppError(
         `Daily limit reached. ${userPlan} plan allows ${limits[actionType]} ${actionType}${limits[actionType] === 1 ? '' : 's'} bulk per day.`,
         429
@@ -76,7 +77,8 @@ const getCurrentUsage = catchAsync(async (req, res, next) => {
   const dailyUsage = await DailyUsage.getTodayUsage(user._id);
   const accountCount = await Account.countDocuments();
   
-  const limits = PLAN_LIMITS[userPlan];
+  // Check if the userPlan exists in PLAN_LIMITS, default to basic if not
+  const limits = PLAN_LIMITS[userPlan] || PLAN_LIMITS['basic'];
     res.json({
     status: 'success',
     data: {

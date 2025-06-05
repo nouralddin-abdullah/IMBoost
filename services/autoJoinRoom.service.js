@@ -6,12 +6,13 @@ const { PLAN_LIMITS } = require('../middleware/planLimits');
 async function autoJoinRoom(roomId, numberOfAccounts, user = null) {
   if (!roomId) throw new Error('Room ID is required');
   if (!numberOfAccounts || numberOfAccounts <= 0) throw new Error('Number of accounts must be greater than 0');
-  
-  // Apply plan limit if user is provided
+    // Apply plan limit if user is provided
   let accountLimit = numberOfAccounts;
   if (user) {
     const userPlan = user.Plan || 'basic';
-    const planLimit = PLAN_LIMITS[userPlan].maxAccountsPerOperation;
+    // Check if the userPlan exists in PLAN_LIMITS, default to basic if not
+    const planConfig = PLAN_LIMITS[userPlan] || PLAN_LIMITS['basic'];
+    const planLimit = planConfig.maxAccountsPerOperation;
     
     // Don't allow exceeding plan limits
     if (planLimit < accountLimit) {

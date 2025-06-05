@@ -18,12 +18,13 @@ async function autoFollow(usernameToFollow, user = null) {
   const legacyCid = userInfoRes.data?.denormalized?.[profileKey]?.data?.legacy_cid;
 
   if (!legacyCid) throw new Error('Legacy CID not found');
-
   // Determine the account limit based on user's plan
   let accountLimit = Infinity;
   if (user) {
     const userPlan = user.Plan || 'basic';
-    accountLimit = PLAN_LIMITS[userPlan].maxAccountsPerOperation;
+    // Check if the userPlan exists in PLAN_LIMITS, default to basic if not
+    const planConfig = PLAN_LIMITS[userPlan] || PLAN_LIMITS['basic'];
+    accountLimit = planConfig.maxAccountsPerOperation;
   }
   
   // Step 2: Loop through bot accounts
