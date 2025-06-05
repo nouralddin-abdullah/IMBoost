@@ -7,6 +7,7 @@ const fs = require("fs");
 const path = require("path");
 const rateLimit = require("express-rate-limit");
 const mongoSanitize = require("express-mongo-sanitize");
+const helmet = require("helmet");
 const hpp = require("hpp");
 const cors = require("cors");
 const cookieParser = require("cookie-parser");
@@ -21,10 +22,15 @@ const autoJoinRoomRoutes = require("./routes/autoJoinRoom.routes");
 const statisticsRouters = require("./routes/statisticRouter");
 app.enable("trust proxy");
 
+// 1) Security HTTP headers
+if (process.env.NODE_ENV === 'production') {
+  app.use(helmet());
+}
+
 // 2) CORS configuration
 app.use(
   cors({
-    origin: "*",
+    origin: process.env.NODE_ENV === 'production' ? process.env.FRONTEND_URL || "*" : "*",
     methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
     allowedHeaders: "*",
     credentials: true,
@@ -43,7 +49,10 @@ const limiter = rateLimit({
   message: "Too many requests from this IP, please try again in an hour!",
 });
 
-// app.use("/api", limiter);
+// Apply rate limiting in production
+if (process.env.NODE_ENV === 'production') {
+  app.use("/api", limiter);
+}
 
 // 5) Body parsers
 app.use(express.json({ limit: "1000mb" }));
@@ -54,7 +63,10 @@ const upload = multer();
 app.use(upload.none()); // For text fields only (no file uploads)
 
 app.use(cookieParser());
-// app.use(mongoSanitize()); // Temporarily disabled due to Express 5 compatibility issue
+// Security middleware for production
+if (process.env.NODE_ENV === 'production') {
+  app.use(mongoSanitize()); // Data sanitization against NoSQL query injection
+}
 app.use(express.static(path.join(__dirname, "static")));
 
 // 8) Custom headers
