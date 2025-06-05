@@ -3,8 +3,6 @@ const router = express.Router();
 const statisticsController = require('../controllers/statisticController');
 const authController = require('../controllers/authController');
 
-// Apply authentication to all routes
-router.use(authController.protect);
 
 // Get global statistics
 router.get('/', statisticsController.getGlobalStatistics);
